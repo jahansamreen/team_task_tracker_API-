@@ -1,0 +1,359 @@
+{
+  "info": {
+    "name": "Task Tracker API",
+    "_postman_id": "task-tracker-v1",
+    "description": "Complete API collection for the Team Task Tracker.\n\n**Setup:**\n1. Run `docker compose up`\n2. Set the `baseUrl` variable to `http://localhost:3000/api/v1`\n3. Run **Auth / Login (Admin)** — the `accessToken` and `refreshToken` variables are set automatically\n4. Explore the rest of the endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",      "value": "http://localhost:3000/api/v1" },
+    { "key": "accessToken",  "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "taskId",       "value": "" },
+    { "key": "projectId",    "value": "" },
+    { "key": "userId",       "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (new org)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@neworg.com\",\n  \"password\": \"Password123!\",\n  \"full_name\": \"New User\",\n  \"organization_name\": \"My New Org\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data) {",
+                "  pm.collectionVariables.set('accessToken',  body.data.access_token);",
+                "  pm.collectionVariables.set('refreshToken', body.data.refresh_token);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@acme.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Manager)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data) {",
+                "  pm.collectionVariables.set('accessToken',  body.data.access_token);",
+                "  pm.collectionVariables.set('refreshToken', body.data.refresh_token);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@acme.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Member)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data) {",
+                "  pm.collectionVariables.set('accessToken',  body.data.access_token);",
+                "  pm.collectionVariables.set('refreshToken', body.data.refresh_token);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@acme.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data) {",
+                "  pm.collectionVariables.set('accessToken',  body.data.access_token);",
+                "  pm.collectionVariables.set('refreshToken', body.data.refresh_token);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/logout",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "List Projects",
+          "request": { "method": "GET", "url": "{{baseUrl}}/projects" }
+        },
+        {
+          "name": "Create Project",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data && body.data.id) pm.collectionVariables.set('projectId', body.data.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/projects",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Website Redesign\",\n  \"description\": \"Complete overhaul of the company website\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Project",
+          "request": { "method": "GET", "url": "{{baseUrl}}/projects/{{projectId}}" }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/projects/{{projectId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/projects/{{projectId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "List Tasks",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tasks" }
+        },
+        {
+          "name": "List Tasks (filtered)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tasks?status=TODO&priority=HIGH&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "status",   "value": "TODO" },
+                { "key": "priority", "value": "HIGH" },
+                { "key": "page",     "value": "1" },
+                { "key": "limit",    "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Task",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "if (body.data && body.data.id) pm.collectionVariables.set('taskId', body.data.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implement login page\",\n  \"description\": \"Build the authentication UI\",\n  \"priority\": \"HIGH\",\n  \"assignee_id\": \"00000000-0000-0000-0000-000000000012\",\n  \"due_date\": \"2027-12-31T00:00:00.000Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Task",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tasks/{{taskId}}" }
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks/{{taskId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"priority\": \"MEDIUM\",\n  \"description\": \"Updated description\"\n}" }
+          }
+        },
+        {
+          "name": "Transition → IN_PROGRESS",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks/{{taskId}}/transition",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"note\": \"Starting work\"\n}" }
+          }
+        },
+        {
+          "name": "Transition → IN_REVIEW",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks/{{taskId}}/transition",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"IN_REVIEW\"\n}" }
+          }
+        },
+        {
+          "name": "Transition → DONE",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks/{{taskId}}/transition",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"DONE\",\n  \"note\": \"Completed and reviewed\"\n}" }
+          }
+        },
+        {
+          "name": "Transition → BLOCKED (invalid from DONE)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks/{{taskId}}/transition",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"BLOCKED\"\n}" }
+          }
+        },
+        {
+          "name": "Analytics (MANAGER/ADMIN)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tasks/analytics" }
+        },
+        {
+          "name": "Delete Task",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/tasks/{{taskId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users" }
+        },
+        {
+          "name": "Get User",
+          "request": { "method": "GET", "url": "{{baseUrl}}/users/00000000-0000-0000-0000-000000000012" }
+        },
+        {
+          "name": "Update Role (ADMIN only)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/00000000-0000-0000-0000-000000000012/role",
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"MANAGER\"\n}" }
+          }
+        },
+        {
+          "name": "Deactivate User (ADMIN only)",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/users/{{userId}}" }
+        }
+      ]
+    },
+    {
+      "name": "RBAC Verification",
+      "description": "Login as MEMBER, then try MANAGER-only endpoints — expect 403s",
+      "item": [
+        {
+          "name": "Member tries to create task (expect 403)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/tasks",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Should fail\"\n}" }
+          }
+        },
+        {
+          "name": "Member tries analytics (expect 403)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/tasks/analytics" }
+        },
+        {
+          "name": "Member tries user role update (expect 403)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/00000000-0000-0000-0000-000000000011/role",
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"ADMIN\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
